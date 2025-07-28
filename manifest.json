@@ -2,7 +2,7 @@
   "name": "Calculadora DP - Departamento Pessoal",
   "short_name": "Calculadora DP",
   "description": "Calculadora completa para cálculos trabalhistas e folha de pagamento",
-  "start_url": "/",
+  "start_url": "https://jadsontgs.github.io/calculadora-dp/",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#0077b6",
