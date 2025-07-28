@@ -1,6 +1,6 @@
 const CACHE_NAME = 'calculadora-dp-v1.0.0';
 const urlsToCache = [
-  '/',
+  '/calculadora-dp/',
   '/index.html',
   '/manifest.json',
   // Adicione outros recursos que queira cachear
