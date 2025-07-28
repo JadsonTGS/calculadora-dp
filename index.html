@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora DP - Departamento Pessoal</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0077b6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Calculadora DP">
+    <meta name="description" content="Calculadora completa para cálculos trabalhistas e folha de pagamento">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Favicon e Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-top: env(safe-area-inset-top, 20px);
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .install-banner {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: white;
+            text-align: center;
+            display: none;
+        }
+
+        .install-banner.show {
+            display: block;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .install-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .install-btn:hover {
+            background: #218838;
+        }
+
+        .dismiss-btn {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 10px 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .dismiss-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .calculators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .calculator-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .calculator-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .calculator-card h3 {
+            color: #0077b6;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .calculator-card p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .calculator-form {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 20px;
+        }
+
+        .calculator-form.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .form-header h2 {
+            color: #0077b6;
+            font-size: 1.8rem;
+        }
+
+        .close-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #ff3742;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #0077b6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #0077b6, #023e8a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #e8f5e8, #d4edda);
+            border-radius: 10px;
+            border-left: 5px solid #28a745;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .result h3 {
+            color: #155724;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #c3e6cb;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            color: #0077b6;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        /* PWA Specific Styles */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top, 40px);
+            }
+
+            .header {
+                margin-top: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-row, .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .calculators-grid {
+                grid-template-columns: 1fr;
+            }
+
+            body {
+                padding: 10px;
+                padding-top: env(safe-area-inset-top, 10px);
+            }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0077b6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Install Banner -->
+        <div class="install-banner" id="installBanner">
+            <h3>📱 Instalar Calculadora DP</h3>
+            <p>Instale este app no seu dispositivo para acesso rápido e uso offline!</p>
+            <button class="install-btn" id="installBtn">📥 Instalar App</button>
+            <button class="dismiss-btn" id="dismissBtn">✕ Dispensar</button>
+        </div>
+
+        <div class="header">
+            <h1>🧮 Calculadora DP</h1>
+            <p>Ferramenta completa para cálculos trabalhistas - PWA 2025</p>
+        </div>
+
+        <div class="calculators-grid" id="calculatorsGrid">
+            <div class="calculator-card" onclick="showCalculator('salario')">
+                <h3>💰 Salário Proporcional</h3>
+                <p>Calcule o salário proporcional baseado nos dias trabalhados no mês</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('horaExtra')">
+                <h3>⏰ Horas Extras</h3>
+                <p>Calcule horas extras com adicional de 50% e 100%</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('adicionalNoturno')">
+                <h3>🌙 Adicional Noturno</h3>
+                <p>Calcule o adicional noturno de 20% sobre as horas trabalhadas</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('descontoFaltas')">
+                <h3>❌ Desconto de Faltas</h3>
+                <p>Calcule o desconto proporcional por dias de falta</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('inss')">
+                <h3>🏛️ INSS</h3>
+                <p>Calcule a contribuição do INSS por faixas salariais (2025)</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('irrf')">
+                <h3>📊 IRRF</h3>
+                <p>Calcule o Imposto de Renda Ret. na Fonte com dependentes</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('fgts')">
+                <h3>🏦 FGTS</h3>
+                <p>Calcule o FGTS - 8% CLT ou 11% Pró-labore</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('ferias')">
+                <h3>🏖️ Férias</h3>
+                <p>Calcule férias proporcionais + 1/3 - desconto INSS</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('decimoTerceiro')">
+                <h3>🎁 13º Salário</h3>
+                <p>Calcule o 13º salário proporcional aos meses trabalhados</p>
+            </div>
+
+            <div class="calculator-card" onclick="showCalculator('rescisao')">
+                <h3>📋 Rescisão Completa</h3>
+                <p>Calcule todos os valores da rescisão trabalhista</p>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Carregando...</p>
+        </div>
+
+        <!-- Todos os formulários anteriores permanecem iguais -->
+        <!-- Formulário Salário Proporcional -->
+        <div class="calculator-form" id="salario">
+            <div class="form-header">
+                <h2>💰 Salário Proporcional</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-group">
+                <label for="salarioMensal">Salário Mensal (R$) <span class="tooltip">ℹ️<span class="tooltiptext">Valor do salário mensal completo</span></span></label>
+                <input type="number" id="salarioMensal" step="0.01" placeholder="Ex: 2500.00">
+            </div>
+            <div class="form-group">
+                <label for="diasTrabalhados">Dias Trabalhados <span class="tooltip">ℹ️<span class="tooltiptext">Quantidade de dias efetivamente trabalhados</span></span></label>
+                <input type="number" id="diasTrabalhados" placeholder="Ex: 15">
+            </div>
+            <button class="calculate-btn" onclick="calcularSalario()">Calcular Salário Proporcional</button>
+            <div class="result" id="resultSalario"></div>
+        </div>
+
+        <!-- Formulário Horas Extras -->
+        <div class="calculator-form" id="horaExtra">
+            <div class="form-header">
+                <h2>⏰ Horas Extras</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-group">
+                <label for="salarioHE">Salário Mensal (R$)</label>
+                <input type="number" id="salarioHE" step="0.01" placeholder="Ex: 2500.00">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="horas50">Horas Extras 50% <span class="tooltip">ℹ️<span class="tooltiptext">Horas extras em dias úteis</span></span></label>
+                    <input type="number" id="horas50" step="0.01" placeholder="Ex: 10">
+                </div>
+                <div class="form-group">
+                    <label for="horas100">Horas Extras 100% <span class="tooltip">ℹ️<span class="tooltiptext">Horas extras em domingos e feriados</span></span></label>
+                    <input type="number" id="horas100" step="0.01" placeholder="Ex: 5">
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calcularHoraExtra()">Calcular Horas Extras</button>
+            <div class="result" id="resultHoraExtra"></div>
+        </div>
+
+        <!-- Formulário Adicional Noturno -->
+        <div class="calculator-form" id="adicionalNoturno">
+            <div class="form-header">
+                <h2>🌙 Adicional Noturno</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-group">
+                <label for="salarioAN">Salário Mensal (R$)</label>
+                <input type="number" id="salarioAN" step="0.01" placeholder="Ex: 2500.00">
+            </div>
+            <div class="form-group">
+                <label for="horasNoturnas">Horas Noturnas <span class="tooltip">ℹ️<span class="tooltiptext">Horas trabalhadas entre 22h e 5h</span></span></label>
+                <input type="number" id="horasNoturnas" step="0.01" placeholder="Ex: 40">
+            </div>
+            <button class="calculate-btn" onclick="calcularAdicionalNoturno()">Calcular Adicional Noturno</button>
+            <div class="result" id="resultAdicionalNoturno"></div>
+        </div>
+
+        <!-- Formulário Desconto de Faltas -->
+        <div class="calculator-form" id="descontoFaltas">
+            <div class="form-header">
+                <h2>❌ Desconto de Faltas</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-group">
+                <label for="salarioDF">Salário Mensal (R$)</label>
+                <input type="number" id="salarioDF" step="0.01" placeholder="Ex: 2500.00">
+            </div>
+            <div class="form-group">
+                <label for="diasFalta">Dias de Falta</label>
+                <input type="number" id="diasFalta" placeholder="Ex: 3">
+            </div>
+            <button class="calculate-btn" onclick="calcularDescontoFaltas()">Calcular Desconto</button>
+            <div class="result" id="resultDescontoFaltas"></div>
+        </div>
+
+        <!-- Formulário INSS ATUALIZADO -->
+        <div class="calculator-form" id="inss">
+            <div class="form-header">
+                <h2>🏛️ INSS</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-group">
+                <label for="salarioINSS">Salário Bruto (R$) <span class="tooltip">ℹ️<span class="tooltiptext">Salário + adicionais antes dos descontos</span></span></label>
+                <input type="number" id="salarioINSS" step="0.01" placeholder="Ex: 3500.00">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="inssManual" onchange="toggleINSSManual()">
+                <label for="inssManual">Usar porcentagem manual</label>
+            </div>
+            <div class="form-group" id="porcentagemManualGroup" style="display: none;">
+                <label for="porcentagemINSS">Porcentagem INSS (%) <span class="tooltip">ℹ️<span class="tooltiptext">Digite a porcentagem desejada</span></span></label>
+                <input type="number" id="porcentagemINSS" step="0.01" min="0" max="20" placeholder="Ex: 11.00">
+            </div>
+            <button class="calculate-btn" onclick="calcularINSS()">Calcular INSS</button>
+            <div class="result" id="resultINSS"></div>
+        </div>
+
+        <!-- Formulário IRRF -->
+        <div class="calculator-form" id="irrf">
+            <div class="form-header">
+                <h2>📊 IRRF</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="salarioIRRF">Salário Bruto (R$)</label>
+                    <input type="number" id="salarioIRRF" step="0.01" placeholder="Ex: 5000.00">
+                </div>
+                <div class="form-group">
+                    <label for="inssIRRF">INSS (R$)</label>
+                    <input type="number" id="inssIRRF" step="0.01" placeholder="Ex: 400.00">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dependentes">Número de Dependentes</label>
+                    <input type="number" id="dependentes" placeholder="Ex: 2">
+                </div>
+                <div class="form-group">
+                    <label for="outrosDescontos">Outros Descontos (R$)</label>
+                    <input type="number" id="outrosDescontos" step="0.01" placeholder="Ex: 200.00">
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calcularIRRF()">Calcular IRRF</button>
+            <div class="result" id="resultIRRF"></div>
+        </div>
+
+        <!-- Formulário FGTS ATUALIZADO -->
+        <div class="calculator-form" id="fgts">
+            <div class="form-header">
+                <h2>🏦 FGTS</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-group">
+                <label for="salarioFGTS">Salário (R$)</label>
+                <input type="number" id="salarioFGTS" step="0.01" placeholder="Ex: 2500.00">
+            </div>
+            <div class="form-group">
+                <label for="tipoFGTS">Tipo de Contribuição</label>
+                <select id="tipoFGTS">
+                    <option value="clt">CLT - 8%</option>
+                    <option value="prolabore">Pró-labore - 11%</option>
+                </select>
+            </div>
+            <button class="calculate-btn" onclick="calcularFGTS()">Calcular FGTS</button>
+            <div class="result" id="resultFGTS"></div>
+        </div>
+
+        <!-- Formulário Férias ATUALIZADO -->
+        <div class="calculator-form" id="ferias">
+            <div class="form-header">
+                <h2>🏖️ Férias</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="salarioFerias">Salário (R$)</label>
+                    <input type="number" id="salarioFerias" step="0.01" placeholder="Ex: 2500.00">
+                </div>
+                <div class="form-group">
+                    <label for="diasFerias">Dias de Férias <span class="tooltip">ℹ️<span class="tooltiptext">Máximo 30 dias</span></span></label>
+                    <input type="number" id="diasFerias" max="30" placeholder="Ex: 30">
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calcularFerias()">Calcular Férias</button>
+            <div class="result" id="resultFerias"></div>
+        </div>
+
+        <!-- Formulário 13º Salário -->
+        <div class="calculator-form" id="decimoTerceiro">
+            <div class="form-header">
+                <h2>🎁 13º Salário</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="salario13">Salário (R$)</label>
+                    <input type="number" id="salario13" step="0.01" placeholder="Ex: 2500.00">
+                </div>
+                <div class="form-group">
+                    <label for="mesesTrabalhados">Meses Trabalhados <span class="tooltip">ℹ️<span class="tooltiptext">Máximo 12 meses</span></span></label>
+                    <input type="number" id="mesesTrabalhados" max="12" placeholder="Ex: 8">
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calcularDecimoTerceiro()">Calcular 13º Salário</button>
+            <div class="result" id="resultDecimoTerceiro"></div>
+        </div>
+
+        <!-- Formulário Rescisão -->
+        <div class="calculator-form" id="rescisao">
+            <div class="form-header">
+                <h2>📋 Rescisão Completa</h2>
+                <button class="close-btn" onclick="hideCalculator()">✕ Fechar</button>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="salarioRescisao">Salário (R$)</label>
+                    <input type="number" id="salarioRescisao" step="0.01" placeholder="Ex: 2500.00">
+                </div>
+                <div class="form-group">
+                    <label for="diasTrabalhadosRescisao">Dias Trabalhados no Mês</label>
+                    <input type="number" id="diasTrabalhadosRescisao" placeholder="Ex: 15">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="mesesTrabalhadosRescisao">Meses Trabalhados no Ano</label>
+                    <input type="number" id="mesesTrabalhadosRescisao" placeholder="Ex: 8">
+                </div>
+                <div class="form-group">
+                    <label for="feriasVencidas">Férias Vencidas (dias)</label>
+                    <input type="number" id="feriasVencidas" placeholder="Ex: 30">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tipoRescisao">Tipo de Rescisão</label>
+                    <select id="tipoRescisao">
+                        <option value="demissao">Demissão sem justa causa</option>
+                        <option value="pedido">Pedido de demissão</option>
+                        <option value="justa">Demissão por justa causa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="saldoFGTS">Saldo FGTS (R$)</label>
+                    <input type="number" id="saldoFGTS" step="0.01" placeholder="Ex: 5000.00">
+                </div>
+            </div>
+            <button class="calculate-btn" onclick="calcularRescisao()">Calcular Rescisão</button>
+            <div class="result" id="resultRescisao"></div>
+        </div>
+    </div>
+
+    <script>
+        // PWA Installation Logic
+        let deferredPrompt;
+        const installBanner = document.getElementById('installBanner');
+        const installBtn = document.getElementById('installBtn');
+        const dismissBtn = document.getElementById('dismissBtn');
+
+        // Check if app is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('App is running in standalone mode');
+        }
+
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            // Show install banner if not dismissed
+            if (!localStorage.getItem('installBannerDismissed')) {
+                installBanner.classList.add('show');
+            }
+        });
+
+        // Install button click
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+
+                deferredPrompt = null;
+                installBanner.classList.remove('show');
+            }
+        });
+
+        // Dismiss button click
+        dismissBtn.addEventListener('click', () => {
+            installBanner.classList.remove('show');
+            localStorage.setItem('installBannerDismissed', 'true');
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Função para mostrar calculadora específica
+        function showCalculator(type) {
+            // Esconder todas as calculadoras
+            const forms = document.querySelectorAll('.calculator-form');
+            forms.forEach(form => {
+                form.classList.remove('active');
+            });
+
+            // Mostrar a calculadora selecionada
+            document.getElementById(type).classList.add('active');
+
+            // Scroll suave para a calculadora
+            document.getElementById(type).scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Função para esconder calculadora
+        function hideCalculator() {
+            const forms = document.querySelectorAll('.calculator-form');
+            forms.forEach(form => {
+                form.classList.remove('active');
+            });
+
+            // Scroll de volta para o topo
+            document.getElementById('calculatorsGrid').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // Função para alternar INSS manual
+        function toggleINSSManual() {
+            const checkbox = document.getElementById('inssManual');
+            const group = document.getElementById('porcentagemManualGroup');
+
+            if (checkbox.checked) {
+                group.style.display = 'block';
+            } else {
+                group.style.display = 'none';
+            }
+        }
+
+        // Função para formatar moeda
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        // Função para mostrar resultado
+        function showResult(resultId, content) {
+            const resultDiv = document.getElementById(resultId);
+            resultDiv.innerHTML = content;
+            resultDiv.classList.add('show');
+        }
+
+        // Função para calcular INSS por faixas atualizadas 2025
+        function calcularINSSPorFaixas(salario) {
+            // Faixas INSS 2025 - ATUALIZADAS com salário mínimo R$ 1.518,00
+            const faixas = [
+                { limite: 1518.00, aliquota: 0.075 },    // 7,5% até 1 salário mínimo
+                { limite: 2537.00, aliquota: 0.09 },     // 9% de 1 a 1,67 salários mínimos
+                { limite: 3810.00, aliquota: 0.12 },     // 12% de 1,67 a 2,51 salários mínimos
+                { limite: 7507.49, aliquota: 0.14 }      // 14% de 2,51 a 4,94 salários mínimos
+            ];
+
+            let inss = 0;
+            let salarioRestante = salario;
+            let detalhes = [];
+
+            for (let i = 0; i < faixas.length; i++) {
+                const faixa = faixas[i];
+                const limiteAnterior = i > 0 ? faixas[i-1].limite : 0;
+                const baseCalculo = Math.min(salarioRestante, faixa.limite - limiteAnterior);
+
+                if (baseCalculo > 0) {
+                    const contribuicao = baseCalculo * faixa.aliquota;
+                    inss += contribuicao;
+                    detalhes.push({
+                        faixa: `${formatCurrency(limiteAnterior)} - ${formatCurrency(faixa.limite)}`,
+                        base: baseCalculo,
+                        aliquota: faixa.aliquota * 100,
+                        valor: contribuicao
+                    });
+                    salarioRestante -= baseCalculo;
+                }
+
+                if (salarioRestante <= 0) break;
+            }
+
+            return { inss, detalhes };
+        }
+
+        // Todas as funções de cálculo permanecem iguais...
+        // [Incluindo todas as funções de cálculo anteriores]
+
+        // Cálculo Salário Proporcional
+        function calcularSalario() {
+            const salario = parseFloat(document.getElementById('salarioMensal').value);
+            const dias = parseInt(document.getElementById('diasTrabalhados').value);
+
+            if (!salario || !dias) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            const salarioProporcional = (salario / 30) * dias;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Salário Mensal:</span>
+                    <span>${formatCurrency(salario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Dias Trabalhados:</span>
+                    <span>${dias} dias</span>
+                </div>
+                <div class="result-item">
+                    <span>Valor por Dia:</span>
+                    <span>${formatCurrency(salario / 30)}</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>Salário Proporcional:</strong></span>
+                    <span><strong>${formatCurrency(salarioProporcional)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultSalario', result);
+        }
+
+        // Cálculo Horas Extras
+        function calcularHoraExtra() {
+            const salario = parseFloat(document.getElementById('salarioHE').value);
+            const horas50 = parseFloat(document.getElementById('horas50').value) || 0;
+            const horas100 = parseFloat(document.getElementById('horas100').value) || 0;
+
+            if (!salario) {
+                alert('Por favor, informe o salário!');
+                return;
+            }
+
+            const valorHora = salario / 220;
+            const valorHE50 = valorHora * 1.5 * horas50;
+            const valorHE100 = valorHora * 2 * horas100;
+            const totalHE = valorHE50 + valorHE100;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Valor da Hora Normal:</span>
+                    <span>${formatCurrency(valorHora)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Horas Extras 50% (${horas50}h):</span>
+                    <span>${formatCurrency(valorHE50)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Horas Extras 100% (${horas100}h):</span>
+                    <span>${formatCurrency(valorHE100)}</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>Total Horas Extras:</strong></span>
+                    <span><strong>${formatCurrency(totalHE)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultHoraExtra', result);
+        }
+
+        // Cálculo Adicional Noturno
+        function calcularAdicionalNoturno() {
+            const salario = parseFloat(document.getElementById('salarioAN').value);
+            const horasNoturnas = parseFloat(document.getElementById('horasNoturnas').value);
+
+            if (!salario || !horasNoturnas) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            const valorHora = salario / 220;
+            const adicionalNoturno = valorHora * 0.20 * horasNoturnas;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Valor da Hora Normal:</span>
+                    <span>${formatCurrency(valorHora)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Horas Noturnas:</span>
+                    <span>${horasNoturnas} horas</span>
+                </div>
+                <div class="result-item">
+                    <span>Percentual Adicional:</span>
+                    <span>20%</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>Adicional Noturno:</strong></span>
+                    <span><strong>${formatCurrency(adicionalNoturno)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultAdicionalNoturno', result);
+        }
+
+        // Cálculo Desconto de Faltas
+        function calcularDescontoFaltas() {
+            const salario = parseFloat(document.getElementById('salarioDF').value);
+            const diasFalta = parseInt(document.getElementById('diasFalta').value);
+
+            if (!salario || !diasFalta) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            const descontoDia = salario / 30;
+            const descontoTotal = descontoDia * diasFalta;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Salário Mensal:</span>
+                    <span>${formatCurrency(salario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Valor por Dia:</span>
+                    <span>${formatCurrency(descontoDia)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Dias de Falta:</span>
+                    <span>${diasFalta} dias</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>Desconto Total:</strong></span>
+                    <span><strong>${formatCurrency(descontoTotal)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultDescontoFaltas', result);
+        }
+
+        // Cálculo INSS ATUALIZADO
+        function calcularINSS() {
+            const salario = parseFloat(document.getElementById('salarioINSS').value);
+            const isManual = document.getElementById('inssManual').checked;
+
+            if (!salario) {
+                alert('Por favor, informe o salário!');
+                return;
+            }
+
+            let result = '';
+
+            if (isManual) {
+                const porcentagem = parseFloat(document.getElementById('porcentagemINSS').value);
+                if (!porcentagem) {
+                    alert('Por favor, informe a porcentagem!');
+                    return;
+                }
+
+                const inss = salario * (porcentagem / 100);
+
+                result = `
+                    <h3>Resultado do Cálculo (Manual)</h3>
+                    <div class="result-item">
+                        <span>Salário Bruto:</span>
+                        <span>${formatCurrency(salario)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Porcentagem Aplicada:</span>
+                        <span>${porcentagem}%</span>
+                    </div>
+                    <div class="result-item">
+                        <span><strong>INSS Total:</strong></span>
+                        <span><strong>${formatCurrency(inss)}</strong></span>
+                    </div>
+                `;
+            } else {
+                const { inss, detalhes } = calcularINSSPorFaixas(salario);
+
+                let resultDetalhes = detalhes.map(d => `
+                    <div class="result-item">
+                        <span>Faixa ${d.faixa} (${d.aliquota}%):</span>
+                        <span>${formatCurrency(d.valor)}</span>
+                    </div>
+                `).join('');
+
+                result = `
+                    <h3>Resultado do Cálculo (Por Faixas 2025)</h3>
+                    <div class="result-item">
+                        <span>Salário Bruto:</span>
+                        <span>${formatCurrency(salario)}</span>
+                    </div>
+                    ${resultDetalhes}
+                    <div class="result-item">
+                        <span><strong>INSS Total:</strong></span>
+                        <span><strong>${formatCurrency(inss)}</strong></span>
+                    </div>
+                `;
+            }
+
+            showResult('resultINSS', result);
+        }
+
+        // Cálculo IRRF
+        function calcularIRRF() {
+            const salario = parseFloat(document.getElementById('salarioIRRF').value);
+            const inss = parseFloat(document.getElementById('inssIRRF').value) || 0;
+            const dependentes = parseInt(document.getElementById('dependentes').value) || 0;
+            const outrosDescontos = parseFloat(document.getElementById('outrosDescontos').value) || 0;
+
+            if (!salario) {
+                alert('Por favor, informe o salário!');
+                return;
+            }
+
+            const valorDependente = 189.59; // 2025
+            const descontoDependentes = dependentes * valorDependente;
+            const baseIRRF = salario - inss - descontoDependentes - outrosDescontos;
+
+            // Faixas IRRF 2025
+            const faixas = [
+                { limite: 2259.20, aliquota: 0, parcela: 0 },
+                { limite: 2826.65, aliquota: 0.075, parcela: 169.44 },
+                { limite: 3751.05, aliquota: 0.15, parcela: 381.44 },
+                { limite: 4664.68, aliquota: 0.225, parcela: 662.77 },
+                { limite: Infinity, aliquota: 0.275, parcela: 896.00 }
+            ];
+
+            let irrf = 0;
+            let faixaAplicada = '';
+
+            for (let faixa of faixas) {
+                if (baseIRRF <= faixa.limite) {
+                    irrf = Math.max(0, (baseIRRF * faixa.aliquota) - faixa.parcela);
+                    faixaAplicada = `${(faixa.aliquota * 100).toFixed(1)}%`;
+                    break;
+                }
+            }
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Salário Bruto:</span>
+                    <span>${formatCurrency(salario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>(-) INSS:</span>
+                    <span>${formatCurrency(inss)}</span>
+                </div>
+                <div class="result-item">
+                    <span>(-) Dependentes (${dependentes}):</span>
+                    <span>${formatCurrency(descontoDependentes)}</span>
+                </div>
+                <div class="result-item">
+                    <span>(-) Outros Descontos:</span>
+                    <span>${formatCurrency(outrosDescontos)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Base de Cálculo:</span>
+                    <span>${formatCurrency(baseIRRF)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Alíquota Aplicada:</span>
+                    <span>${faixaAplicada}</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>IRRF:</strong></span>
+                    <span><strong>${formatCurrency(irrf)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultIRRF', result);
+        }
+
+        // Cálculo FGTS ATUALIZADO
+        function calcularFGTS() {
+            const salario = parseFloat(document.getElementById('salarioFGTS').value);
+            const tipo = document.getElementById('tipoFGTS').value;
+
+            if (!salario) {
+                alert('Por favor, informe o salário!');
+                return;
+            }
+
+            const aliquota = tipo === 'prolabore' ? 0.11 : 0.08;
+            const fgts = salario * aliquota;
+            const tipoTexto = tipo === 'prolabore' ? 'Pró-labore (11%)' : 'CLT (8%)';
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Salário:</span>
+                    <span>${formatCurrency(salario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Tipo:</span>
+                    <span>${tipoTexto}</span>
+                </div>
+                <div class="result-item">
+                    <span>Alíquota FGTS:</span>
+                    <span>${(aliquota * 100)}%</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>FGTS:</strong></span>
+                    <span><strong>${formatCurrency(fgts)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultFGTS', result);
+        }
+
+        // Cálculo Férias ATUALIZADO COM DESCONTO INSS
+        function calcularFerias() {
+            const salario = parseFloat(document.getElementById('salarioFerias').value);
+            const dias = parseInt(document.getElementById('diasFerias').value);
+
+            if (!salario || !dias) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            const ferias = (salario / 30) * dias;
+            const umTerco = ferias / 3;
+            const totalFeriasAntes = ferias + umTerco;
+
+            // Calcular INSS sobre o total das férias
+            const { inss } = calcularINSSPorFaixas(totalFeriasAntes);
+            const totalFeriasLiquido = totalFeriasAntes - inss;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Salário:</span>
+                    <span>${formatCurrency(salario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Dias de Férias:</span>
+                    <span>${dias} dias</span>
+                </div>
+                <div class="result-item">
+                    <span>Férias Proporcionais:</span>
+                    <span>${formatCurrency(ferias)}</span>
+                </div>
+                <div class="result-item">
+                    <span>1/3 Constitucional:</span>
+                    <span>${formatCurrency(umTerco)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Total Bruto:</span>
+                    <span>${formatCurrency(totalFeriasAntes)}</span>
+                </div>
+                <div class="result-item">
+                    <span>(-) INSS:</span>
+                    <span>${formatCurrency(inss)}</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>Total Líquido das Férias:</strong></span>
+                    <span><strong>${formatCurrency(totalFeriasLiquido)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultFerias', result);
+        }
+
+        // Cálculo 13º Salário
+        function calcularDecimoTerceiro() {
+            const salario = parseFloat(document.getElementById('salario13').value);
+            const meses = parseInt(document.getElementById('mesesTrabalhados').value);
+
+            if (!salario || !meses) {
+                alert('Por favor, preencha todos os campos!');
+                return;
+            }
+
+            const decimoTerceiro = (salario / 12) * meses;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Salário:</span>
+                    <span>${formatCurrency(salario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Meses Trabalhados:</span>
+                    <span>${meses} meses</span>
+                </div>
+                <div class="result-item">
+                    <span>Valor por Mês:</span>
+                    <span>${formatCurrency(salario / 12)}</span>
+                </div>
+                <div class="result-item">
+                    <span><strong>13º Salário:</strong></span>
+                    <span><strong>${formatCurrency(decimoTerceiro)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultDecimoTerceiro', result);
+        }
+
+        // Cálculo Rescisão
+        function calcularRescisao() {
+            const salario = parseFloat(document.getElementById('salarioRescisao').value);
+            const diasTrabalhados = parseInt(document.getElementById('diasTrabalhadosRescisao').value);
+            const mesesTrabalhados = parseInt(document.getElementById('mesesTrabalhadosRescisao').value);
+            const feriasVencidas = parseInt(document.getElementById('feriasVencidas').value) || 0;
+            const tipoRescisao = document.getElementById('tipoRescisao').value;
+            const saldoFGTS = parseFloat(document.getElementById('saldoFGTS').value) || 0;
+
+            if (!salario || !diasTrabalhados || !mesesTrabalhados) {
+                alert('Por favor, preencha os campos obrigatórios!');
+                return;
+            }
+
+            // Cálculos básicos
+            const saldoSalario = (salario / 30) * diasTrabalhados;
+            const decimoTerceiro = (salario / 12) * mesesTrabalhados;
+            const feriasProporcionais = (salario / 12) * mesesTrabalhados;
+            const umTercoFerias = feriasProporcionais / 3;
+            const feriasVencidasValor = feriasVencidas > 0 ? (salario / 30) * feriasVencidas : 0;
+            const umTercoFeriasVencidas = feriasVencidasValor / 3;
+
+            let avisoPrevia = 0;
+            let multaFGTS = 0;
+
+            if (tipoRescisao === 'demissao') {
+                avisoPrevia = salario; // 30 dias
+                multaFGTS = saldoFGTS * 0.40; // 40% do saldo
+            }
+
+            const totalRescisao = saldoSalario + decimoTerceiro + feriasProporcionais + 
+                                umTercoFerias + feriasVencidasValor + umTercoFeriasVencidas + 
+                                avisoPrevia + multaFGTS;
+
+            const result = `
+                <h3>Resultado do Cálculo</h3>
+                <div class="result-item">
+                    <span>Saldo de Salário:</span>
+                    <span>${formatCurrency(saldoSalario)}</span>
+                </div>
+                <div class="result-item">
+                    <span>13º Proporcional:</span>
+                    <span>${formatCurrency(decimoTerceiro)}</span>
+                </div>
+                <div class="result-item">
+                    <span>Férias Proporcionais:</span>
+                    <span>${formatCurrency(feriasProporcionais)}</span>
+                </div>
+                <div class="result-item">
+                    <span>1/3 Férias Proporcionais:</span>
+                    <span>${formatCurrency(umTercoFerias)}</span>
+                </div>
+                ${feriasVencidasValor > 0 ? `
+                <div class="result-item">
+                    <span>Férias Vencidas:</span>
+                    <span>${formatCurrency(feriasVencidasValor)}</span>
+                </div>
+                <div class="result-item">
+                    <span>1/3 Férias Vencidas:</span>
+                    <span>${formatCurrency(umTercoFeriasVencidas)}</span>
+                </div>
+                ` : ''}
+                ${avisoPrevia > 0 ? `
+                <div class="result-item">
+                    <span>Aviso Prévio:</span>
+                    <span>${formatCurrency(avisoPrevia)}</span>
+                </div>
+                ` : ''}
+                ${multaFGTS > 0 ? `
+                <div class="result-item">
+                    <span>Multa 40% FGTS:</span>
+                    <span>${formatCurrency(multaFGTS)}</span>
+                </div>
+                ` : ''}
+                <div class="result-item">
+                    <span><strong>Total da Rescisão:</strong></span>
+                    <span><strong>${formatCurrency(totalRescisao)}</strong></span>
+                </div>
+            `;
+
+            showResult('resultRescisao', result);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+{
+  "name": "Calculadora DP - Departamento Pessoal",
+  "short_name": "Calculadora DP",
+  "description": "Calculadora completa para cálculos trabalhistas e folha de pagamento",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#0077b6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "pt-BR",
+  "categories": ["business", "finance", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230077b6' rx='20'/><text x='96' y='130' font-size='100' text-anchor='middle' fill='white'>🧮</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' fill='%230077b6' rx='50'/><text x='256' y='350' font-size='280' text-anchor='middle' fill='white'>🧮</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 144 144'><rect width='144' height='144' fill='%230077b6' rx='15'/><text x='72' y='100' font-size='80' text-anchor='middle' fill='white'>🧮</text></svg>",
+      "sizes": "144x144",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%230077b6' rx='10'/><text x='48' y='65' font-size='50' text-anchor='middle' fill='white'>🧮</text></svg>",
+      "sizes": "96x96",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'><rect width='72' height='72' fill='%230077b6' rx='8'/><text x='36' y='50' font-size='40' text-anchor='middle' fill='white'>🧮</text></svg>",
+      "sizes": "72x72",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' fill='%230077b6' rx='5'/><text x='24' y='33' font-size='26' text-anchor='middle' fill='white'>🧮</text></svg>",
+      "sizes": "48x48",
+      "type": "image/svg+xml"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect width='540' height='720' fill='%23667eea'/><rect x='20' y='100' width='500' height='520' fill='white' rx='15'/><text x='270' y='50' font-size='24' text-anchor='middle' fill='white'>Calculadora DP</text><text x='270' y='200' font-size='18' text-anchor='middle' fill='%230077b6'>💰 Salário Proporcional</text><text x='270' y='280' font-size='18' text-anchor='middle' fill='%230077b6'>⏰ Horas Extras</text><text x='270' y='360' font-size='18' text-anchor='middle' fill='%230077b6'>🏛️ INSS</text><text x='270' y='440' font-size='18' text-anchor='middle' fill='%230077b6'>🏖️ Férias</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calcular INSS",
+      "short_name": "INSS",
+      "description": "Calcular contribuição do INSS",
+      "url": "/?calc=inss",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%230077b6' rx='10'/><text x='48' y='65' font-size='50' text-anchor='middle' fill='white'>🏛️</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Calcular Férias",
+      "short_name": "Férias",
+      "description": "Calcular valor das férias",
+      "url": "/?calc=ferias",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%230077b6' rx='10'/><text x='48' y='65' font-size='50' text-anchor='middle' fill='white'>🏖️</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Calcular 13º",
+      "short_name": "13º Salário",
+      "description": "Calcular 13º salário",
+      "url": "/?calc=decimo",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><rect width='96' height='96' fill='%230077b6' rx='10'/><text x='48' y='65' font-size='50' text-anchor='middle' fill='white'>🎁</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
